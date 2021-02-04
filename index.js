@@ -49,6 +49,15 @@ class Extractor {
           this.zipfile.readEntry()
           return
         }
+        
+        if (this.opts.onEntry) {
+          const continueExtracton = this.opts.onEntry(entry, this.zipfile)
+          
+          if (!continueExtracton) {
+            this.zipfile.readEntry()
+            return
+          }
+        }
 
         const destDir = path.dirname(path.join(this.opts.dir, entry.fileName))
 
@@ -79,10 +88,6 @@ class Extractor {
     if (this.canceled) {
       debug('skipping entry extraction', entry.fileName, { cancelled: this.canceled })
       return
-    }
-
-    if (this.opts.onEntry) {
-      this.opts.onEntry(entry, this.zipfile)
     }
 
     const dest = path.join(this.opts.dir, entry.fileName)
